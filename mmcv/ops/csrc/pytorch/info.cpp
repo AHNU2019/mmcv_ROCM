@@ -3,8 +3,17 @@
 #include "pytorch_cpp_helper.hpp"
 
 #ifdef MMCV_WITH_CUDA
+
+#ifdef __NVCC__
 #include <cuda_runtime_api.h>
 int get_cudart_version() { return CUDART_VERSION; }
+#endif
+
+#ifdef __HIP_PLATFORM_HCC__
+#include <hip/hip_version.h>
+int get_hiprt_version() { return HIP_VERSION; }
+#endif
+
 #endif
 
 std::string get_compiling_cuda_version() {
@@ -18,7 +27,14 @@ std::string get_compiling_cuda_version() {
       oss << "." << (v % 10);
     }
   };
+#ifdef __NVCC__
   printCudaStyleVersion(get_cudart_version());
+#endif
+
+#ifdef __HIP_PLATFORM_HCC__
+  printCudaStyleVersion(get_hiprt_version());
+#endif
+
   return oss.str();
 #else
   return std::string("not available");
